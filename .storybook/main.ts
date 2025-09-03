@@ -24,11 +24,13 @@ const config: StorybookConfig = {
     },
   },
   viteFinal: async (config) => {
-    if (process.env.NODE_ENV === 'production') {
-      config.base = '/makyo-dropdown/';
-    }
+    config.base = process.env.NODE_ENV === 'production' ? '/makyo-dropdown/' : '/';
     return config;
   },
+  managerHead: (head) => `
+    ${head}
+    <base href="/makyo-dropdown/">
+  `,
 };
 
 export default config;
