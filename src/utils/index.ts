@@ -2,7 +2,8 @@ import { DropdownOption, Position } from '../types';
 
 export const filterOptions = (
   options: DropdownOption[],
-  searchTerm: string
+  searchTerm: string,
+  searchDescriptions: boolean = true
 ): DropdownOption[] => {
   const term = searchTerm.toLowerCase().trim();
   if (!term) return options;
@@ -10,7 +11,9 @@ export const filterOptions = (
   return options.filter(
     (option) =>
       option.label.toLowerCase().includes(term) ||
-      (option.description && option.description.toLowerCase().includes(term))
+      (searchDescriptions &&
+        option.description &&
+        option.description.toLowerCase().includes(term))
   );
 };
 
@@ -29,30 +32,44 @@ export const calculatePosition = (
   offset: number
 ): Position => {
   const triggerRect = triggerElement.getBoundingClientRect();
-  const menuRect = menuElement.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
 
-  const spaceBelow = viewportHeight - triggerRect.bottom;
-  const spaceAbove = triggerRect.top;
+  // Get menu dimensions, but use a stable fallback if not available
+  const menuHeight = menuElement.offsetHeight || 200; // fallback height
+  const menuWidth = Math.max(triggerRect.width, 200); // minimum width
 
-  let top =
-    spaceBelow >= menuRect.height + offset || spaceBelow >= spaceAbove
-      ? triggerRect.bottom + offset
-      : triggerRect.top - menuRect.height - offset;
+  const spaceBelow = viewportHeight - triggerRect.bottom - offset;
+  const spaceAbove = triggerRect.top - offset;
+
+  // Determine if dropdown should open upward or downward
+  const openUpward = spaceBelow < menuHeight && spaceAbove > spaceBelow;
+
+  let top = openUpward
+    ? triggerRect.top - menuHeight - offset
+    : triggerRect.bottom + offset;
 
   let left = triggerRect.left;
 
-  if (left + menuRect.width > viewportWidth)
-    left = viewportWidth - menuRect.width - 8;
-  if (left < 8) left = 8;
-  if (top + menuRect.height > viewportHeight)
-    top = viewportHeight - menuRect.height - 8;
-  if (top < 8) top = 8;
+  // Adjust horizontal position to stay within viewport
+  if (left + menuWidth > viewportWidth - 8) {
+    left = Math.max(8, viewportWidth - menuWidth - 8);
+  }
+  if (left < 8) {
+    left = 8;
+  }
+
+  // Adjust vertical position to stay within viewport
+  if (top + menuHeight > viewportHeight - 8) {
+    top = Math.max(8, viewportHeight - menuHeight - 8);
+  }
+  if (top < 8) {
+    top = 8;
+  }
 
   return {
-    top: Math.max(0, top),
-    left: Math.max(0, left),
+    top: Math.round(top),
+    left: Math.round(left),
     width: triggerRect.width,
   };
 };

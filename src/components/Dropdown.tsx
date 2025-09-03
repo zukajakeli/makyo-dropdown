@@ -120,7 +120,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const selectedOptions = getSelectedOptions(options, value);
-  const filteredOptions = filterOptions(options, searchTerm);
+  const filteredOptions = filterOptions(options, searchTerm, false);
 
   const updatePosition = useCallback(() => {
     if (triggerRef.current && menuRef.current && isOpen) {
@@ -129,17 +129,37 @@ export const Dropdown: React.FC<DropdownProps> = ({
         menuRef.current,
         4
       );
-      setMenuPosition(newPosition);
+      setMenuPosition((prev) => {
+        // Only update if position has changed significantly to prevent jitter
+        if (
+          Math.abs(prev.top - newPosition.top) > 2 ||
+          Math.abs(prev.left - newPosition.left) > 2 ||
+          Math.abs(prev.width - newPosition.width) > 2
+        ) {
+          return newPosition;
+        }
+        return prev;
+      });
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
-      updatePosition();
-      window.addEventListener('scroll', updatePosition, true);
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(updatePosition);
+
+      // Throttle scroll events to prevent excessive updates
+      let scrollTimeout: NodeJS.Timeout;
+      const throttledUpdate = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(updatePosition, 16); // ~60fps
+      };
+
+      window.addEventListener('scroll', throttledUpdate, true);
       window.addEventListener('resize', updatePosition);
       return () => {
-        window.removeEventListener('scroll', updatePosition, true);
+        clearTimeout(scrollTimeout);
+        window.removeEventListener('scroll', throttledUpdate, true);
         window.removeEventListener('resize', updatePosition);
       };
     }
@@ -342,11 +362,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
         key={option.value}
         ref={(el) => (optionRefs.current[index] = el)}
         className={clsx(
-          'px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors',
+          'px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors text-gray-900',
           {
-            'bg-blue-50': isFocused && !isSelected,
-            'bg-blue-100': isSelected && !multiple,
-            'bg-green-100': isSelected && multiple,
+            'bg-blue-50 text-blue-900': isFocused && !isSelected,
+            'bg-blue-100 text-blue-900': isSelected && !multiple,
+            'bg-green-100 text-green-900': isSelected && multiple,
             'opacity-50 cursor-not-allowed': option.disabled,
           }
         )}
@@ -355,9 +375,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
         <div className='flex items-center flex-1'>
           {option.icon && <span className='mr-2'>{option.icon}</span>}
           <div>
-            <div className='font-medium'>{option.label}</div>
-            {option.description && (
-              <div className='text-sm text-gray-500'>{option.description}</div>
+            <div className='font-medium text-gray-900'>{option.label}</div>
+            {option.description && !searchable && (
+              <div className='text-sm text-gray-600'>{option.description}</div>
             )}
           </div>
         </div>
@@ -369,7 +389,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const renderOptionsList = () => {
     if (loading) {
       return (
-        <div className='px-3 py-2 text-center text-gray-500'>
+        <div className='px-3 py-2 text-center text-gray-600'>
           <LoadingIcon />
           <span className='ml-2'>{loadingText}</span>
         </div>
@@ -378,7 +398,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
     if (filteredOptions.length === 0) {
       return (
-        <div className='px-3 py-2 text-center text-gray-500'>
+        <div className='px-3 py-2 text-center text-gray-600'>
           No results found
         </div>
       );
@@ -392,23 +412,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const menu = (
     <div
       ref={menuRef}
-      className='absolute bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden animate-scale-in'
+      className='absolute bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden animate-scale-in text-gray-900'
       style={{
         top: menuPosition.top,
         left: menuPosition.left,
         minWidth: menuPosition.width,
         zIndex,
+        maxWidth: '320px', // Prevent menu from becoming too wide
       }}>
       {searchable && (
         <div className='p-2 border-b border-gray-200'>
           <div className='relative'>
-            <div className='absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none'>
+            <div className='absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-400'>
               <SearchIcon />
             </div>
             <input
               ref={searchRef}
               type='text'
-              className='w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none'
+              className='w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none text-gray-900 placeholder-gray-500'
               placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
