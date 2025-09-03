@@ -175,9 +175,14 @@ var Dropdown = function (_a) {
         if (isOpen && usePortal) {
             // Set initial position
             requestAnimationFrame(updatePosition);
-            // Only update on resize, not on scroll to prevent jumping
+            // Update position on scroll to keep dropdown under input
+            var handleScroll_1 = function () {
+                requestAnimationFrame(updatePosition);
+            };
+            window.addEventListener('scroll', handleScroll_1, true);
             window.addEventListener('resize', updatePosition);
             return function () {
+                window.removeEventListener('scroll', handleScroll_1, true);
                 window.removeEventListener('resize', updatePosition);
             };
         }

@@ -138,9 +138,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
       // Set initial position
       requestAnimationFrame(updatePosition);
 
-      // Only update on resize, not on scroll to prevent jumping
+      // Update position on scroll to keep dropdown under input
+      const handleScroll = () => {
+        requestAnimationFrame(updatePosition);
+      };
+
+      window.addEventListener('scroll', handleScroll, true);
       window.addEventListener('resize', updatePosition);
       return () => {
+        window.removeEventListener('scroll', handleScroll, true);
         window.removeEventListener('resize', updatePosition);
       };
     }
