@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./globals.css">
     <style>
       .dropdown-scrollbar::-webkit-scrollbar {
         width: 6px;
@@ -99,7 +100,10 @@
           >
         </p>
         <p class="text-sm text-gray-500 mt-2">
-          Install: <code class="bg-gray-100 px-2 py-1 rounded">npm install makyo-dropdown</code>
+          Install:
+          <code class="bg-gray-100 px-2 py-1 rounded"
+            >npm install makyo-dropdown</code
+          >
         </p>
       </div>
     </div>
@@ -109,6 +113,15 @@
       // Import the actual Dropdown component
       import { Dropdown } from './dist/index.esm.js';
       
+      // Add error handling
+      window.addEventListener('error', (e) => {
+        console.error('Error:', e.error);
+      });
+      
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled promise rejection:', e.reason);
+      });
+
       const { useState, createElement } = React;
 
       // Sample data
@@ -151,10 +164,14 @@
       // Demo components
       function BasicDropdownDemo() {
         const [value, setValue] = useState(undefined);
+        console.log('BasicDropdownDemo rendering with:', { value, options: basicOptions });
         return createElement(Dropdown, {
           options: basicOptions,
           value: value,
-          onChange: setValue,
+          onChange: (newValue) => {
+            console.log('BasicDropdown onChange:', newValue);
+            setValue(newValue);
+          },
           placeholder: 'Select a fruit...',
         });
       }
