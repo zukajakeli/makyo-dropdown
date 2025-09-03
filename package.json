@@ -9,14 +9,25 @@
   "files": [
     "dist"
   ],
+  "homepage": "https://zukajayeli.github.io/makyo-dropdown",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zukajayeli/makyo-dropdown.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zukajayeli/makyo-dropdown/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "predeploy": "npm run build-storybook",
+    "deploy": "gh-pages -d storybook-static",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "react",
@@ -53,6 +64,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.32",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -62,11 +74,11 @@
     "rollup-plugin-postcss": "^4.0.2",
     "storybook": "^7.6.7",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.3.3",
     "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
     "vite": "^5.0.10"
   },
   "dependencies": {
     "clsx": "^2.0.0"
   }
-} 
+}
