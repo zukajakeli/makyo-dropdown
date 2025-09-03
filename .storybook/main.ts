@@ -23,6 +23,12 @@ const config: StorybookConfig = {
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
   },
+  viteFinal: async (config) => {
+    if (process.env.NODE_ENV === 'production') {
+      config.base = '/makyo-dropdown/';
+    }
+    return config;
+  },
 };
 
 export default config;
