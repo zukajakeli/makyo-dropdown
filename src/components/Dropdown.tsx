@@ -123,7 +123,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const filteredOptions = filterOptions(options, searchTerm, false);
 
   const updatePosition = useCallback(() => {
-    if (triggerRef.current && menuRef.current && isOpen) {
+    if (triggerRef.current && menuRef.current && isOpen && usePortal) {
       const newPosition = calculatePosition(
         triggerRef.current,
         menuRef.current,
@@ -141,10 +141,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
         return prev;
       });
     }
-  }, [isOpen]);
+  }, [isOpen, usePortal]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && usePortal) {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(updatePosition);
 
@@ -163,7 +163,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         window.removeEventListener('resize', updatePosition);
       };
     }
-  }, [isOpen, updatePosition]);
+  }, [isOpen, usePortal, updatePosition]);
 
   useEffect(() => {
     if (isOpen && searchable && searchRef.current) {
@@ -413,13 +413,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div
       ref={menuRef}
       className='absolute bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden animate-scale-in text-gray-900'
-      style={{
-        top: menuPosition.top,
-        left: menuPosition.left,
-        minWidth: menuPosition.width,
-        zIndex,
-        maxWidth: '320px', // Prevent menu from becoming too wide
-      }}>
+      style={
+        usePortal
+          ? {
+              top: menuPosition.top,
+              left: menuPosition.left,
+              minWidth: menuPosition.width,
+              zIndex,
+              maxWidth: '320px',
+            }
+          : {
+              top: '100%',
+              left: 0,
+              right: 0,
+              zIndex,
+              maxWidth: '320px',
+              marginTop: '4px',
+            }
+      }>
       {searchable && (
         <div className='p-2 border-b border-gray-200'>
           <div className='relative'>
