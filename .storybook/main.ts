@@ -25,7 +25,8 @@ const config: StorybookConfig = {
   },
   viteFinal: async (config) => {
     // Set base path for GitHub Pages deployment
-    config.base = process.env.NODE_ENV === 'production' ? '/makyo-dropdown/' : '/';
+    config.base =
+      process.env.NODE_ENV === 'production' ? '/makyo-dropdown/' : '/';
     return config;
   },
 };
