@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Makyo Dropdown Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .dropdown-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .dropdown-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .dropdown-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 3px;
+      }
+      .dropdown-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
+      }
+      .dropdown-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db transparent;
+      }
+      .animate-scale-in {
+        animation: scaleIn 0.15s ease-out;
+      }
+      @keyframes scaleIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">
+        Makyo Dropdown Demo
+      </h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Basic Dropdown</h2>
+          <div id="basic-dropdown"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Searchable</h2>
+          <div id="searchable-dropdown"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Multiple Selection</h2>
+          <div id="multiple-dropdown"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">With Icons</h2>
+          <div id="icons-dropdown"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Portal Mode</h2>
+          <div class="relative">
+            <div
+              class="absolute inset-0 bg-blue-500 opacity-20 z-50 pointer-events-none p-2 rounded">
+              <span class="text-blue-900 text-sm font-semibold"
+                >High z-index element</span
+              >
+            </div>
+            <div class="relative z-10 bg-white p-2 rounded">
+              <div id="portal-dropdown"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Custom Styling</h2>
+          <div id="custom-dropdown"></div>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <p class="text-gray-600">
+          View the full documentation and more examples in
+          <a
+            href="https://zukajakeli.github.io/makyo-dropdown/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline"
+            >Storybook</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      // Sample data
+      const basicOptions = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+        { value: 'cherry', label: 'Cherry' },
+        { value: 'date', label: 'Date' },
+        { value: 'elderberry', label: 'Elderberry' },
+      ];
+
+      const longOptions = Array.from({ length: 50 }, (_, i) => ({
+        value: `option-${i}`,
+        label: `Option ${i + 1}`,
+      }));
+
+      const iconOptions = [
+        {
+          value: 'home',
+          label: 'Home',
+          icon: React.createElement('span', null, '🏠'),
+        },
+        {
+          value: 'profile',
+          label: 'Profile',
+          icon: React.createElement('span', null, '👤'),
+        },
+        {
+          value: 'settings',
+          label: 'Settings',
+          icon: React.createElement('span', null, '⚙️'),
+        },
+        {
+          value: 'logout',
+          label: 'Logout',
+          icon: React.createElement('span', null, '🚪'),
+        },
+      ];
+
+      // Note: In a real implementation, you would import the actual Dropdown component
+      // For this demo, we'll create a simplified version
+      function SimpleDropdown({
+        options,
+        placeholder,
+        multiple = false,
+        searchable = false,
+        usePortal = false,
+        className = '',
+      }) {
+        const [isOpen, setIsOpen] = useState(false);
+        const [value, setValue] = useState(multiple ? [] : undefined);
+        const [searchTerm, setSearchTerm] = useState('');
+
+        const filteredOptions = searchable
+          ? options.filter((opt) =>
+              opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          : options;
+
+        const selectedOptions = multiple
+          ? options.filter((opt) => value.includes(opt.value))
+          : value
+          ? [options.find((opt) => opt.value === value)].filter(Boolean)
+          : [];
+
+        const handleSelect = (option) => {
+          if (multiple) {
+            const newValue = value.includes(option.value)
+              ? value.filter((v) => v !== option.value)
+              : [...value, option.value];
+            setValue(newValue);
+          } else {
+            setValue(option.value);
+            setIsOpen(false);
+          }
+        };
+
+        return React.createElement(
+          'div',
+          {
+            className: `relative ${className}`,
+            onBlur: (e) => {
+              if (!e.currentTarget.contains(e.relatedTarget)) {
+                setIsOpen(false);
+              }
+            },
+          },
+          React.createElement(
+            'button',
+            {
+              className: `w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                isOpen ? 'border-blue-500 ring-2 ring-blue-500' : ''
+              }`,
+              onClick: () => setIsOpen(!isOpen),
+            },
+            React.createElement(
+              'div',
+              { className: 'flex items-center justify-between' },
+              React.createElement(
+                'div',
+                { className: 'flex-1 min-w-0' },
+                selectedOptions.length > 0
+                  ? multiple && selectedOptions.length > 1
+                    ? React.createElement(
+                        'div',
+                        { className: 'flex flex-wrap gap-1' },
+                        selectedOptions.map((opt) =>
+                          React.createElement(
+                            'span',
+                            {
+                              key: opt.value,
+                              className:
+                                'inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-md',
+                            },
+                            opt.label
+                          )
+                        )
+                      )
+                    : React.createElement(
+                        'div',
+                        { className: 'flex items-center' },
+                        selectedOptions[0].icon,
+                        React.createElement(
+                          'span',
+                          { className: selectedOptions[0].icon ? 'ml-2' : '' },
+                          selectedOptions[0].label
+                        )
+                      )
+                  : React.createElement(
+                      'span',
+                      { className: 'text-gray-500' },
+                      placeholder
+                    )
+              ),
+              React.createElement(
+                'svg',
+                {
+                  className: 'w-4 h-4',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  viewBox: '0 0 24 24',
+                },
+                React.createElement('path', {
+                  strokeLinecap: 'round',
+                  strokeLinejoin: 'round',
+                  strokeWidth: 2,
+                  d: 'M19 9l-7 7-7-7',
+                })
+              )
+            )
+          ),
+          isOpen &&
+            React.createElement(
+              'div',
+              {
+                className: `absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-${
+                  usePortal ? '9999' : '10'
+                } animate-scale-in`,
+              },
+              searchable &&
+                React.createElement(
+                  'div',
+                  { className: 'p-2 border-b border-gray-200' },
+                  React.createElement('input', {
+                    type: 'text',
+                    className:
+                      'w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+                    placeholder: 'Search...',
+                    value: searchTerm,
+                    onChange: (e) => setSearchTerm(e.target.value),
+                    autoFocus: true,
+                  })
+                ),
+              React.createElement(
+                'div',
+                { className: 'max-h-48 overflow-y-auto dropdown-scrollbar' },
+                filteredOptions.length > 0
+                  ? filteredOptions.map((option) =>
+                      React.createElement(
+                        'div',
+                        {
+                          key: option.value,
+                          className: `px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                            multiple && value.includes(option.value)
+                              ? 'bg-blue-50'
+                              : ''
+                          }`,
+                          onClick: () => handleSelect(option),
+                        },
+                        React.createElement(
+                          'div',
+                          { className: 'flex items-center flex-1' },
+                          option.icon,
+                          React.createElement(
+                            'span',
+                            { className: option.icon ? 'ml-2' : '' },
+                            option.label
+                          )
+                        ),
+                        multiple &&
+                          value.includes(option.value) &&
+                          React.createElement(
+                            'svg',
+                            {
+                              className: 'w-4 h-4',
+                              fill: 'none',
+                              stroke: 'currentColor',
+                              viewBox: '0 0 24 24',
+                            },
+                            React.createElement('path', {
+                              strokeLinecap: 'round',
+                              strokeLinejoin: 'round',
+                              strokeWidth: 2,
+                              d: 'M5 13l4 4L19 7',
+                            })
+                          )
+                      )
+                    )
+                  : React.createElement(
+                      'div',
+                      {
+                        className: 'px-3 py-2 text-center text-gray-500',
+                      },
+                      'No results found'
+                    )
+              )
+            )
+        );
+      }
+
+      // Render examples
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: basicOptions,
+          placeholder: 'Select a fruit...',
+        }),
+        document.getElementById('basic-dropdown')
+      );
+
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: longOptions,
+          placeholder: 'Search for an option...',
+          searchable: true,
+        }),
+        document.getElementById('searchable-dropdown')
+      );
+
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: basicOptions,
+          placeholder: 'Select multiple fruits...',
+          multiple: true,
+        }),
+        document.getElementById('multiple-dropdown')
+      );
+
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: iconOptions,
+          placeholder: 'Select an action...',
+        }),
+        document.getElementById('icons-dropdown')
+      );
+
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: basicOptions,
+          placeholder: 'Portal dropdown...',
+          usePortal: true,
+        }),
+        document.getElementById('portal-dropdown')
+      );
+
+      ReactDOM.render(
+        React.createElement(SimpleDropdown, {
+          options: basicOptions,
+          placeholder: 'Custom styled...',
+          className: 'custom-dropdown',
+        }),
+        document.getElementById('custom-dropdown')
+      );
+    </script>
+  </body>
+</html>
