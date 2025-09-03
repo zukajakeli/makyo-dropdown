@@ -65,24 +65,24 @@ var calculatePosition = function (triggerElement, menuElement, offset) {
     var spaceAbove = triggerRect.top - offset;
     // Determine if dropdown should open upward or downward
     var openUpward = spaceBelow < menuHeight && spaceAbove > spaceBelow;
-    // Calculate position relative to viewport with scroll offset
+    // Calculate position relative to viewport (for fixed positioning)
     var top = openUpward
-        ? triggerRect.top + window.scrollY - menuHeight - offset
-        : triggerRect.bottom + window.scrollY + offset;
-    var left = triggerRect.left + window.scrollX;
+        ? triggerRect.top - menuHeight - offset
+        : triggerRect.bottom + offset;
+    var left = triggerRect.left;
     // Adjust horizontal position to stay within viewport
     if (left + menuWidth > viewportWidth - 8) {
-        left = Math.max(8, viewportWidth - menuWidth - 8) + window.scrollX;
+        left = Math.max(8, viewportWidth - menuWidth - 8);
     }
-    if (left < 8 + window.scrollX) {
-        left = 8 + window.scrollX;
+    if (left < 8) {
+        left = 8;
     }
     // Adjust vertical position to stay within viewport
-    if (top + menuHeight > viewportHeight + window.scrollY - 8) {
-        top = Math.max(8 + window.scrollY, viewportHeight + window.scrollY - menuHeight - 8);
+    if (top + menuHeight > viewportHeight - 8) {
+        top = Math.max(8, viewportHeight - menuHeight - 8);
     }
-    if (top < 8 + window.scrollY) {
-        top = 8 + window.scrollY;
+    if (top < 8) {
+        top = 8;
     }
     return {
         top: Math.round(top),

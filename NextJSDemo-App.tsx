@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dropdown } from 'makyo-dropdown';
-import type { DropdownOption } from 'makyo-dropdown';
+import { Dropdown } from './src/components/Dropdown';
+import type { DropdownOption } from './src/types';
 
 const App: React.FC = () => {
   // Sample data
@@ -129,6 +129,7 @@ const App: React.FC = () => {
               onChange={(value) => setBasicValue(value as string | number)}
               placeholder='Select a fruit...'
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -153,6 +154,7 @@ const App: React.FC = () => {
               onChange={(value) => setCountryValue(value as string | number)}
               placeholder='Select a country...'
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -180,6 +182,7 @@ const App: React.FC = () => {
               placeholder='Select multiple fruits...'
               multiple={true}
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -206,6 +209,7 @@ const App: React.FC = () => {
               searchable={true}
               searchPlaceholder='Type to search...'
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -266,6 +270,7 @@ const App: React.FC = () => {
               loading={true}
               loadingText='Loading data...'
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -289,6 +294,7 @@ const App: React.FC = () => {
               placeholder='Disabled dropdown...'
               disabled={true}
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Status:</strong> Disabled
@@ -312,6 +318,7 @@ const App: React.FC = () => {
               onChange={(value) => setActionValue(value as string | number)}
               placeholder='Choose an action...'
               className='mb-3'
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
@@ -337,6 +344,7 @@ const App: React.FC = () => {
               placeholder='Custom styled dropdown...'
               className='mb-3 border-2 border-pink-300 rounded-lg focus-within:border-pink-500'
               style={{ backgroundColor: '#fef7ff' }}
+              usePortal={false}
             />
             <div className='text-sm text-gray-500'>
               <strong>Selected:</strong>{' '}
