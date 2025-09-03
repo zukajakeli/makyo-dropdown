@@ -23,7 +23,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "predeploy": "npm run build-storybook",
-    "deploy": "gh-pages -d storybook-static",
+    "deploy": "gh-pages -d storybook-static -t",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",

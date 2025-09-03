@@ -24,8 +24,8 @@ const config: StorybookConfig = {
     },
   },
   viteFinal: async (config) => {
-    // Use relative base for GitHub Pages compatibility
-    config.base = process.env.NODE_ENV === 'production' ? './' : '/';
+    // Set base path for GitHub Pages deployment
+    config.base = process.env.NODE_ENV === 'production' ? '/makyo-dropdown/' : '/';
     return config;
   },
 };
