@@ -129,37 +129,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
         menuRef.current,
         4
       );
-      setMenuPosition((prev) => {
-        // Only update if position has changed significantly to prevent jitter
-        if (
-          Math.abs(prev.top - newPosition.top) > 2 ||
-          Math.abs(prev.left - newPosition.left) > 2 ||
-          Math.abs(prev.width - newPosition.width) > 2
-        ) {
-          return newPosition;
-        }
-        return prev;
-      });
+      setMenuPosition(newPosition);
     }
   }, [isOpen, usePortal]);
 
   useEffect(() => {
     if (isOpen && usePortal) {
-      // Use requestAnimationFrame to ensure DOM is ready
+      // Set initial position
       requestAnimationFrame(updatePosition);
 
-      // Throttle scroll events to prevent excessive updates
-      let scrollTimeout: NodeJS.Timeout;
-      const throttledUpdate = () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(updatePosition, 16); // ~60fps
-      };
-
-      window.addEventListener('scroll', throttledUpdate, true);
+      // Only update on resize, not on scroll to prevent jumping
       window.addEventListener('resize', updatePosition);
       return () => {
-        clearTimeout(scrollTimeout);
-        window.removeEventListener('scroll', throttledUpdate, true);
         window.removeEventListener('resize', updatePosition);
       };
     }
@@ -412,7 +393,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const menu = (
     <div
       ref={menuRef}
-      className='absolute bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden animate-scale-in text-gray-900'
+      className={clsx(
+        'bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden animate-scale-in text-gray-900',
+        usePortal ? 'fixed' : 'absolute'
+      )}
       style={
         usePortal
           ? {

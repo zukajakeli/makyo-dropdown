@@ -45,26 +45,30 @@ export const calculatePosition = (
   // Determine if dropdown should open upward or downward
   const openUpward = spaceBelow < menuHeight && spaceAbove > spaceBelow;
 
+  // Calculate position relative to viewport with scroll offset
   let top = openUpward
-    ? triggerRect.top - menuHeight - offset
-    : triggerRect.bottom + offset;
+    ? triggerRect.top + window.scrollY - menuHeight - offset
+    : triggerRect.bottom + window.scrollY + offset;
 
-  let left = triggerRect.left;
+  let left = triggerRect.left + window.scrollX;
 
   // Adjust horizontal position to stay within viewport
   if (left + menuWidth > viewportWidth - 8) {
-    left = Math.max(8, viewportWidth - menuWidth - 8);
+    left = Math.max(8, viewportWidth - menuWidth - 8) + window.scrollX;
   }
-  if (left < 8) {
-    left = 8;
+  if (left < 8 + window.scrollX) {
+    left = 8 + window.scrollX;
   }
 
   // Adjust vertical position to stay within viewport
-  if (top + menuHeight > viewportHeight - 8) {
-    top = Math.max(8, viewportHeight - menuHeight - 8);
+  if (top + menuHeight > viewportHeight + window.scrollY - 8) {
+    top = Math.max(
+      8 + window.scrollY,
+      viewportHeight + window.scrollY - menuHeight - 8
+    );
   }
-  if (top < 8) {
-    top = 8;
+  if (top < 8 + window.scrollY) {
+    top = 8 + window.scrollY;
   }
 
   return {
