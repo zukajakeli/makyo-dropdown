@@ -9,13 +9,13 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://zukajayeli.github.io/makyo-dropdown",
+  "homepage": "https://zukajakeli.github.io/makyo-dropdown",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zukajayeli/makyo-dropdown.git"
+    "url": "https://github.com/zukajakeli/makyo-dropdown.git"
   },
   "bugs": {
-    "url": "https://github.com/zukajayeli/makyo-dropdown/issues"
+    "url": "https://github.com/zukajakeli/makyo-dropdown/issues"
   },
   "scripts": {
     "build": "rollup -c",
